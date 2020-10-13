@@ -36,9 +36,9 @@ class App extends Component {
   handleMoreBtn = () => {
     let sushiArrLength = this.state.sushiArr.length
     let startIndex = this.state.startIndex
-    const startIndex = ( (startIndex + 4) >= sushiArrLength ) ? 0 : startIndex + 4 
+    const index = ( (startIndex + 4) >= sushiArrLength ) ? 0 : startIndex + 4 
 
-    this.setState({startIndex: startIndex + 4})
+    this.setState({startIndex: index})
   }
 
   handleEatSushi = (id, price) => {
