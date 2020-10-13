@@ -1,27 +1,25 @@
 import React, { Fragment } from 'react'
 
 const Sushi = (props) => {
-  //console.log(props);
+  const {name, price, img_url, eaten, id} = props.sushiObj
+  //console.log(id);
   return (
     <div className="sushi">
       <div className="plate" 
-           onClick={() => props.handleEatSushi(props.id, props.price)}>
+           onClick={() => props.handleEatSushi(id, price)}>
         { 
           /* Tell me if this sushi has been eaten! */ 
-          /* if eaten = false, show image */ 
-          /* else do not show image */
-          props.eaten ?
+          eaten ?
             null
           :
-            <img src={props.img_url} width="100%" />
+            <img src={img_url} width="100%" />
         }
       </div>
       <h4 className="sushi-details">
-        {props.name} - ${props.price}
+        {name} - ${price}
       </h4>
     </div>
   )
 }
-
 
 export default Sushi

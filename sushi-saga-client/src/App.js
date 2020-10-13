@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import SushiWalletForm from './components/SushiWalletForm';
 import SushiContainer from './containers/SushiContainer';
 import Table from './containers/Table';
 
@@ -6,50 +7,94 @@ import Table from './containers/Table';
 const API = "http://localhost:3000/sushis"
 
 class App extends Component {
-  
+
   state = {
-    sushiData: [],
+    sushiArr: [],
+    startIndex: 0,
     eatenSushis: [],
-    firstIndex: 0,
     budget: 138
   }
 
   componentDidMount() {
     fetch(API)
-      .then(res => res.json())
-      .then(data => this.setState({sushiData: data}) );
+    .then(res => res.json())
+    .then(sushiArr => this.setState({
+        sushiArr: sushiArr.map(sushiObj => {
+          return {
+            ...sushiObj,
+            eaten: false
+          }
+        })
+      }) 
+    );
+  }
+
+  showFourSushis = () => {
+    return this.state.sushiArr.slice(this.state.startIndex, this.state.startIndex + 4)
   }
 
   handleMoreBtn = () => {
-    this.setState({firstIndex: this.state.firstIndex + 4})
+    let sushiArrLength = this.state.sushiArr.length
+    let startIndex = this.state.startIndex
+    if( (startIndex + 4) > sushiArrLength || startIndex >= sushiArrLength) {
+      this.setState({startIndex: 0})
+    } else {
+      this.setState({startIndex: startIndex + 4})
+    }
   }
 
-  handleEatSushi = (sushiId, sushiPrice) => {
-    //console.log('cliked plate');
-   // console.log(sushiObj);
-    let updatedEatenSushiIds = [...this.state.eatenSushis, sushiId]
-    let updatedBudget = this.state.budget - sushiPrice
+  handleEatSushi = (id, price) => {
+    const updatedSushiArr = this.state.sushiArr.map(sushiObj => {
+      if (sushiObj.id === id) {
+        return {
+          ...sushiObj,
+          eaten: true
+        }
+      }
+      else {
+        return sushiObj
+        }
+      }
+    )
+    const updatedEatenSushis = [...this.state.eatenSushis, id]
+    if(this.state.budget < price){
+      alert('Add more money to your account!')
+      return
+    }
+    const updatedBudget = this.state.budget - price
     this.setState({
-      eatenSushis: updatedEatenSushiIds,
+      sushiArr: updatedSushiArr,
+      eatenSushis: updatedEatenSushis,
       budget: updatedBudget
     })
   }
 
+  handleAddMoney = (e) => {
+    e.preventDefault()
+    let addedMoney = parseInt(e.target['budget'].value)
+    this.setState(prevState => {
+      return {budget: parseInt(prevState.budget) + addedMoney}
+    })
+    e.target.reset()
+  }
 
   render() {
-  const sushisToShow = this.state.sushiData.slice(this.state.firstIndex, this.state.firstIndex + 4)
     return (
       <div className="app">
         <SushiContainer 
-          sushis={sushisToShow} 
-          eatenSushis={this.state.eatenSushis} 
-          handleMoreBtn={this.handleMoreBtn} 
+          sushiArr={this.showFourSushis()}
+          handleMoreBtn={this.handleMoreBtn}
           handleEatSushi={this.handleEatSushi}
         />
         <Table 
-          budget={this.state.budget} 
           eatenSushis={this.state.eatenSushis}
+          budget={this.state.budget}
         />
+        <div className="form">
+          <SushiWalletForm 
+          handleAddMoney={this.handleAddMoney}
+          />
+        </div>
       </div>
     );
   }
